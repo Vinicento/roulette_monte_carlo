@@ -3,7 +3,7 @@ import plotly.graph_objects as go
 import numpy as np
 import simulations
 import matplotlib.pyplot as plt
-
+import os
 
 app = Flask(__name__)
 
@@ -82,4 +82,5 @@ def generate_plot(curves):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
