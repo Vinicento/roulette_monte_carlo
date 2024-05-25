@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Roulette Simulation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #8e766a, #b29c85, #d7af87);
+            color:#1e4525;
+            margin: 0;
+            padding: 20px;
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-direction: column;
+        }
+        h1 {
+            color:#1e4525;
+            text-align: center;
+            font-size: 42px;
+            font-weight: bold;
+            margin: 15px 0 30px;
+            background: linear-gradient(to right, #603811, #82572b, #936e57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            width: 100%;
+        }
+        .content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+            gap: 20px;
+        }
+        form, .statistics-div {
+            background: linear-gradient(to bottom, #f7f0e4, #e6d8c3, #d3b8a6);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #d3c1a5;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+            flex-basis: 50%;
+        }
+        form:hover, .statistics-div:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        select, input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #d3c1a5;
+            background-color: #faf3e0;
+            color: #2a2a2a;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        select:hover, input[type="number"]:hover {
+            background-color: #f0e6d2;
+        }
+        button {
+            background-color: #a67651;
+            color: #ffffff;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 15px;
+            margin-top: 2px;
+            width: 100%;
+            background: linear-gradient(to right, #a67651, #c48b70, #d7a588);
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: linear-gradient(to right, #956045, #b27a5f, #c89b78);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+        .plot-div {
+            background: linear-gradient(to bottom, #f7f0e4, #e6d8c3);
+            max-width: 1800px;
+            margin: 35px auto;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+            width: 100%;
+        }
+        .plot-div:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            form, .statistics-div {
+                flex-basis: auto;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Roulette Monte Carlo Simulation</h1>
+    <div class="content">
+ <form action="/" method="post">
+            <label for="strategy_type">Strategy Type:</label>
+            <select name="strategy_type" id="strategy_type">
+                <option value="paroli_strategy" {% if strategy_type == "paroli_strategy" %}selected{% endif %}>Paroli</option>
+                <option value="james_bond_strategy" {% if strategy_type == "james_bond_strategy" %}selected{% endif %}>James Bond</option>
+                <option value="no_strategy_betting" {% if strategy_type == "no_strategy_betting" %}selected{% endif %}>Just bet</option>
+                <option value="martingale_system" {% if strategy_type == "martingale_system" %}selected{% endif %}>Martingale</option>
+                <option value="DAlembert" {% if strategy_type == "DAlembert" %}selected{% endif %}>DAlembert</option>
+                <option value="Fibonacci_betting" {% if strategy_type == "Fibonacci_betting" %}selected{% endif %}>Fibonacci</option>
+            </select>
+            <label for="betting_type">Betting Type:</label>
+            <select name="betting_type" id="betting_type">
+                <option value="1" {% if betting_type == "1" %}selected{% endif %}>Straight up</option>
+                <option value="2" {% if betting_type == "2" %}selected{% endif %}>Split</option>
+                <option value="3" {% if betting_type == "3" %}selected{% endif %}>Street</option>
+                <option value="4" {% if betting_type == "4" %}selected{% endif %}>Corner bet</option>
+                <option value="5" {% if betting_type == "5" %}selected{% endif %}>Five numbers</option>
+                <option value="6" {% if betting_type == "6" %}selected{% endif %}>Line</option>
+                <option value="7" {% if betting_type == "7" %}selected{% endif %}>Column</option>
+                <option value="8" {% if betting_type == "8" %}selected{% endif %}>Colour</option>
+            </select>
+            <label for="scenario_numbers">Scenario Numbers:</label>
+            <input type="number" name="scenario_numbers" id="scenario_numbers" value="{{ scenario_numbers }}">
+            <label for="sequence_lenght">Sequence Lenght:</label>
+            <input type="number" name="sequence_lenght" id="sequence_lenght" value="{{ sequence_lenght }}">
+            <button type="submit">Generate Plot</button>
+        </form>
+        <div class="statistics-div">
+            <h2>Statistics</h2>
+            <p><strong>Max Break:</strong> {{ max_break }}</p>
+            <p><strong>Average Break:</strong> {{ average_break }}</p>
+            <p><strong>Max Profit:</strong> {{ max_profit }}</p>
+            <p><strong>Average Profit:</strong> {{ average_profit }}</p>
+        </div>
+    </div>
+
+
+
+    {% if plot_div %}
+        <div class="plot-div">{{ plot_div|safe }}</div>
+    {% endif %}
+</body>
+</html>

@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 import plotly.graph_objects as go
 import numpy as np
-import roulette_simulator
+import app
 import numpy as np
 import matplotlib.pyplot as plt
 
