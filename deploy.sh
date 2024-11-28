@@ -7,29 +7,38 @@ echo "creating app folder"
 sudo mkdir -p /var/www/langchain-app
 
 echo "moving files to app folder"
-sudo mv  * /var/www/langchain-app
+sudo mv * /var/www/langchain-app
 
 # Navigate to the app directory
 cd /var/www/langchain-app/
 sudo mv env .env
 
 sudo apt-get update
-echo "installing python and pip"
-sudo apt-get install -y python3 python3-pip
+echo "installing python3 and virtualenv"
+sudo apt-get install -y python3 python3-pip python3-venv
 
-# Install application dependencies from requirements.txt
-echo "Install application dependencies from requirements.txt"
-sudo pip install -r requirements.txt
+# Create a virtual environment
+if [ ! -d "venv" ]; then
+    echo "Creating virtual environment"
+    python3 -m venv venv
+fi
+
+# Activate the virtual environment and install dependencies
+echo "Activating virtual environment and installing dependencies"
+source venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+deactivate
 
 # Update and install Nginx if not already installed
 if ! command -v nginx > /dev/null; then
     echo "Installing Nginx"
-    sudo apt-get update
     sudo apt-get install -y nginx
 fi
 
 # Configure Nginx to act as a reverse proxy if not already configured
 if [ ! -f /etc/nginx/sites-available/myapp ]; then
+    echo "Configuring Nginx"
     sudo rm -f /etc/nginx/sites-enabled/default
     sudo bash -c 'cat > /etc/nginx/sites-available/myapp <<EOF
 server {
@@ -50,12 +59,13 @@ else
 fi
 
 # Stop any existing Gunicorn process
+echo "Stopping existing Gunicorn process if running"
 sudo pkill gunicorn
 sudo rm -rf myapp.sock
 
-# # Start Gunicorn with the Flask application
-# # Replace 'server:app' with 'yourfile:app' if your Flask instance is named differently.
-# # gunicorn --workers 3 --bind 0.0.0.0:8000 server:app &
-echo "starting gunicorn"
-sudo gunicorn --workers 3 --bind unix:myapp.sock  app:app --user www-data --group www-data --daemon
-echo "started gunicorn 🚀"
+# Start Gunicorn using the virtual environment
+echo "Starting Gunicorn"
+source venv/bin/activate
+gunicorn --workers 3 --bind unix:/var/www/langchain-app/myapp.sock app:app --daemon --user www-data --group www-data
+deactivate
+echo "Gunicorn started 🚀"
