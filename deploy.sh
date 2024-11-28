@@ -1,20 +1,21 @@
 #!/bin/bash
 
-echo "deleting old app"
+echo "Deleting old app"
 sudo rm -rf /var/www/
 
-echo "creating app folder"
+echo "Creating app folder"
 sudo mkdir -p /var/www/langchain-app
+sudo chown -R $USER:$USER /var/www/langchain-app
 
-echo "moving files to app folder"
-sudo mv * /var/www/langchain-app
+echo "Moving files to app folder"
+mv * /var/www/langchain-app
 
 # Navigate to the app directory
-cd /var/www/langchain-app/
-sudo mv env .env
+cd /var/www/langchain-app || exit
+mv env .env
 
+echo "Installing Python3, pip, and virtualenv"
 sudo apt-get update
-echo "installing python3 and virtualenv"
 sudo apt-get install -y python3 python3-pip python3-venv
 
 # Create a virtual environment
@@ -60,7 +61,7 @@ fi
 
 # Stop any existing Gunicorn process
 echo "Stopping existing Gunicorn process if running"
-sudo pkill gunicorn
+sudo pkill gunicorn || true
 sudo rm -rf myapp.sock
 
 # Start Gunicorn using the virtual environment
